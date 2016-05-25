@@ -188,9 +188,57 @@ ctm_GBSG2_1 <- ctm(B_GBSG2y, shifting = fm_GBSG2[-2L], data = GBSG2,
 mlt_GBSG2_1 <- mlt(ctm_GBSG2_1, data = GBSG2, maxit = 3000, scale = TRUE)
 
 ## ----GBSG2-1-coxph-------------------------------------------------------
-coxph_GBSG2_1 <- coxph(fm_GBSG2, data = GBSG2)
+coxph_GBSG2_1 <- coxph(fm_GBSG2, data = GBSG2, ties = "breslow")
 cf <- coef(coxph_GBSG2_1)
 cbind(coxph = cf, mlt = coef(mlt_GBSG2_1)[names(cf)])
+
+## ----GBSG2-coxph_mlt, echo = FALSE, results = "hide"---------------------
+ndtmp <- as.data.frame(mkgrid(GBSG2y, 100))
+
+ord <- 1:30
+p <- vector(mode = "list", length = length(ord))
+CF <- c()
+ll <- numeric(length(ord))
+tm <- numeric(length(ord))
+
+for (i in 1:length(ord)) {
+    print(i)
+    B_GBSG2ytmp <- Bernstein_basis(var = GBSG2y, order = ord[i], ui = "increasing")
+    ctmi <- ctm(B_GBSG2ytmp, shifting = fm_GBSG2[-2L], data = GBSG2,
+                   todistr = "MinExtrVal")
+    tm[i] <- system.time(mlti <- mlt(ctmi, data = GBSG2, maxit = 3000, scale = TRUE))[1]
+
+    ll[i] <- logLik(mlti)
+    p[[i]] <- predict(mlti, newdata = ndtmp, type = "trafo", terms = "bresponse")
+
+    cf <- coef(mlti)
+    cf <- cf[-grep("Bs", names(cf))]
+    CF <- rbind(CF, cf)
+}
+colnames(CF) <- names(cf)
+
+nd0 <- as.data.frame(lapply(GBSG2, function(x) {
+    if (is.numeric(x)) return(0)
+    if (is.factor(x)) x[x == levels(x)[1]][1]
+}))
+
+b <- survfit(coxph_GBSG2_1, newdata = nd0)
+layout(matrix(1:2, nc = 2))
+col <- rgb(.1, .1, .1, .1)
+ylim <- range(unlist(p))
+plot(ndtmp$y, p[[1]], type = "l", ylim =  ylim, col = col, xlab = "Survival Time (days)",
+     ylab = "Log Cumulative Hazard")
+out <- sapply(p, function(y) lines(ndtmp$y, y, col = col))
+lines(b$time, log(b$cumhaz), col = "red")
+
+ylim <- range(CF)
+plot(ord, CF[,1], ylim = ylim, col = col[1], xlab = "Order M", 
+     ylab = "Coefficients")
+for (i in 1:ncol(CF)) {
+    points(ord, CF[,i], cex = .5)
+    abline(h = coef(coxph_GBSG2_1)[i])
+}
+# text(20, coef(coxph_GBSG2_1) + .1, names(coef(coxph_GBSG2_1)))
 
 ## ----GBSG2-1-fss, cache = TRUE-------------------------------------------
 fss_GBSG2_1 <- flexsurvspline(fm_GBSG2, data = GBSG2, scale = "hazard", 
@@ -207,7 +255,9 @@ p2 <- predict(mlt_GBSG2_1, newdata = GBSG2[1, all.vars(fm_GBSG2[-2L])],
 plot(p1[[1]]$time, p1[[1]]$est, type = "l", lty = 1, xlab = "Survival Time (days)", 
      ylab = "Probability", ylim = c(0, 1))
 lines(p1[[1]]$time, p2[,1], lty = 2)
-legend("topright", lty = 1:2, legend = c("flexsurvspline", "mlt"), bty = "n")
+p3 <- survfit(coxph_GBSG2_1, newdata = GBSG2[1,])
+lines(p3$time, p3$surv, lty = 3)
+legend("topright", lty = 1:3, legend = c("flexsurvspline", "mlt", "coxph"), bty = "n")
 
 ## ----GBSG2-2-------------------------------------------------------------
 ly <- log_basis(GBSG2y, ui = "increasing")
@@ -467,7 +517,8 @@ b_horTh <- as.basis(GBSG2$horTh)
 ctm_GBSG2_8 <- ctm(B_GBSG2y, 
                    interacting = b(horTh = b_horTh, age = B_age), 
                    todistr = "MinExtrVal")
-mlt_GBSG2_8  <- mlt(ctm_GBSG2_8, data = GBSG2)
+mlt_GBSG2_8  <- mlt(ctm_GBSG2_8, data = GBSG2, maxit = 5000, 
+                    gtol = 1e-3)
 logLik(mlt_GBSG2_8)
 AIC(mlt_GBSG2_8)
 
@@ -484,7 +535,7 @@ contourplot(s ~ age + y | horTh, data = nd, at = 1:9 / 10,
 ## ----head, echo = TRUE, cache = TRUE-------------------------------------
 data("db", package = "gamlss.data")
 db$lage <- with(db, age^(1/3))
-var_head = numeric_var("head", support = quantile(db$head, c(.1, .9)),
+var_head <- numeric_var("head", support = quantile(db$head, c(.1, .9)),
                        bounds = range(db$head))
 B_head <- Bernstein_basis(var_head, order = 3, ui = "increasing")
 var_lage <- numeric_var("lage", support = quantile(db$lage, c(.1, .9)),
@@ -861,20 +912,23 @@ yvar <- numeric_var("y", support = qY(c(.001, 1 - .001)),
 By <- Bernstein_basis(yvar, order = ord <- 15, ui = "increasing")
 
 ## ----mlt-chi-mlt---------------------------------------------------------
-m <- ctm(By)
-d <- as.data.frame(mkgrid(yvar, n = 500))
-mod <- mlt(m, data = d, dofit = FALSE)
+mod <- ctm(By)
 
 ## ----mlt-chi-trafo-------------------------------------------------------
 h <- function(x) qnorm(pY(x))
 x <- seq(from = support(yvar)[["y"]][1], to = support(yvar)[["y"]][2], 
          length.out = ord + 1)
+
+## ----mlt-chi-coef--------------------------------------------------------
 mlt::coef(mod) <- h(x)
 
 ## ----mlt-chi-sim---------------------------------------------------------
+d <- as.data.frame(mkgrid(yvar, n = 500))
 d$grid <- d$y
-d$y <- simulate(mod)
-fmod <- mlt(m, data = d, scale = TRUE)
+d$y <- simulate(mod, newdata = d)
+
+## ----mlt-chi-fit---------------------------------------------------------
+fmod <- mlt(mod, data = d, scale = TRUE)
 
 ## ----mlt-chi-model-------------------------------------------------------
 coef(mod)

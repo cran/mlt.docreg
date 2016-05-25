@@ -1,7 +1,7 @@
 
 %\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{mlt}
-%\VignetteDepends{variables, basefun, mlt, survival, eha, prodlim, truncreg, lattice, gridExtra, MASS, nnet, HSAUR3, sandwich, flexsurv, grid, latticeExtra, colorspace, multcomp, mgcv, intcox, coxinterval, ICsurv, polspline, logspline, bshazard, gss, MIICD, TransModel, dynsurv, timereg, survivalMPL, np, gamlss, Matrix, muhaz, ICE, ordinal, VGAM, AER, coin, gamlss.data, mlbench}
+%\VignetteDepends{variables, basefun, mlt, survival, eha, prodlim, truncreg, lattice, gridExtra, MASS, nnet, HSAUR3, sandwich, flexsurv, grid, latticeExtra, colorspace, multcomp, mgcv, coxinterval, ICsurv, polspline, logspline, bshazard, gss, MIICD, TransModel, dynsurv, timereg, survivalMPL, np, gamlss, Matrix, muhaz, ICE, ordinal, VGAM, AER, coin, gamlss.data, mlbench}
 
 \documentclass[article,nojss,shortnames]{jss}
 
@@ -177,7 +177,7 @@ its own right.  The usual treatment of $\sigma^2$ as a nuisance parameter
 only works when the likelihood is approximated by the density of the normal
 distribution.  Because in real life we always observe intervals $(\ubar{\ry}, \bar{\ry}]$
 and never real numbers $\ry$, the exact likelihood is, as originally
-\textit{defined} by \cite{Fisher_1934} [B
+\textit{defined} by \cite{Fisher_1934}
 \begin{eqnarray*}
 \Prob(\ubar{\ry} < \rY \le \bar{\ry} | \rX = \rx) = 
 \Phi\left(\frac{\bar{\ry} - \alpha - \tilde{\rx}^\top \shiftparm}{\sigma}\right) - \Phi\left(\frac{\ubar{\ry} - \alpha - \tilde{\rx}^\top \shiftparm}{\sigma}\right)
@@ -745,10 +745,88 @@ mlt_GBSG2_1 <- mlt(ctm_GBSG2_1, data = GBSG2, maxit = 3000, scale = TRUE)
 The results obtained for $\shiftparm$ from
 the partial and the exact log-likelihood are practically equivalent
 <<GBSG2-1-coxph>>=
-coxph_GBSG2_1 <- coxph(fm_GBSG2, data = GBSG2)
+coxph_GBSG2_1 <- coxph(fm_GBSG2, data = GBSG2, ties = "breslow")
 cf <- coef(coxph_GBSG2_1)
 cbind(coxph = cf, mlt = coef(mlt_GBSG2_1)[names(cf)])
 @
+A practically important question is how the order $M$ of the Bernstein polynomial
+affects the results. Recall that the log cumulative baseline function $\h_\rY$ is not
+specified when the partial likelihood is maximised and thus \cmd{coxph} makes no
+assumptions regarding this function. To study the impact of $M$ on the results, 
+we refit the Cox model using \cmd{mlt} for $M = 1, \dots, 30$ and plot the 
+log cumulative hazard function $\h_\rY$ for different $M$ along with the
+non-parametric Nelson-Aalen-Breslow estimator in the left panel of 
+Figure~\ref{fig:GBSG2-coxph_mlt}. In the right panel of Figure~\ref{fig:GBSG2-coxph_mlt},
+the change in the regression coefficients $\shiftparm$ as a function of order $M$
+is shown. Both the log cumulative hazard function and the regression coefficients
+obtained from \cmd{mlt} are stable for $M \ge 10$ and very similar to the results
+one obtains from \cmd{coxph}. This result shows that a simple yet fully parametric model 
+produces practically equivalent results when compared to the 
+semiparametric partial likelihood approach. There is no harm in choosing $M$ ``too large'',
+except longer computing times of course. In this sense, there is no need to ``tune'' $M$.
+
+\begin{figure}[t]
+\begin{center}
+<<GBSG2-coxph_mlt, echo = FALSE, results = "hide">>=
+ndtmp <- as.data.frame(mkgrid(GBSG2y, 100))
+
+ord <- 1:30
+p <- vector(mode = "list", length = length(ord))
+CF <- c()
+ll <- numeric(length(ord))
+tm <- numeric(length(ord))
+
+for (i in 1:length(ord)) {
+    print(i)
+    B_GBSG2ytmp <- Bernstein_basis(var = GBSG2y, order = ord[i], ui = "increasing")
+    ctmi <- ctm(B_GBSG2ytmp, shifting = fm_GBSG2[-2L], data = GBSG2,
+                   todistr = "MinExtrVal")
+    tm[i] <- system.time(mlti <- mlt(ctmi, data = GBSG2, maxit = 3000, scale = TRUE))[1]
+
+    ll[i] <- logLik(mlti)
+    p[[i]] <- predict(mlti, newdata = ndtmp, type = "trafo", terms = "bresponse")
+
+    cf <- coef(mlti)
+    cf <- cf[-grep("Bs", names(cf))]
+    CF <- rbind(CF, cf)
+}
+colnames(CF) <- names(cf)
+
+nd0 <- as.data.frame(lapply(GBSG2, function(x) {
+    if (is.numeric(x)) return(0)
+    if (is.factor(x)) x[x == levels(x)[1]][1]
+}))
+
+b <- survfit(coxph_GBSG2_1, newdata = nd0)
+layout(matrix(1:2, nc = 2))
+col <- rgb(.1, .1, .1, .1)
+ylim <- range(unlist(p))
+plot(ndtmp$y, p[[1]], type = "l", ylim =  ylim, col = col, xlab = "Survival Time (days)",
+     ylab = "Log Cumulative Hazard")
+out <- sapply(p, function(y) lines(ndtmp$y, y, col = col))
+lines(b$time, log(b$cumhaz), col = "red")
+
+ylim <- range(CF)
+plot(ord, CF[,1], ylim = ylim, col = col[1], xlab = "Order M", 
+     ylab = "Coefficients")
+for (i in 1:ncol(CF)) {
+    points(ord, CF[,i], cex = .5)
+    abline(h = coef(coxph_GBSG2_1)[i])
+}
+# text(20, coef(coxph_GBSG2_1) + .1, names(coef(coxph_GBSG2_1)))
+@
+\caption{GBSG-2 Trial. Comparison of exact and partial likelihood for order $M = 1, \dots, 30$
+         of the Bernstein polynom approximating the log cumulative hazard function $\h_\rY$.
+         In the left panel the estimated log cumulative hazard functions for varying
+         $M$ obtained by \cmd{mlt} are shown in grey and the Nelson-Aalen-Breslow estimator
+         obtained from \cmd{coxph} in red. The right panel shows the trajectories of the
+         regression coefficients $\shiftparm$ obtained for varying $M$ from \cmd{mlt} as
+         dots. The horizonal lines represent the partial likelihood estimates from \cmd{coxph}. 
+         \label{fig:GBSG2-coxph_mlt}}
+\end{center}
+\end{figure}
+
+
 A comparison with the \cite{Royston_Parmar_2002} spline model as implemented in the
 \pkg{flexsurv} package \citep{pkg:flexsurv} shows that the two spline parameterisations
 of the log cumulative hazard function $\h_\rY$ are practically equivalent (see Figure~\ref{GBSG2-1-fss-plot} also)
@@ -770,11 +848,14 @@ p2 <- predict(mlt_GBSG2_1, newdata = GBSG2[1, all.vars(fm_GBSG2[-2L])],
 plot(p1[[1]]$time, p1[[1]]$est, type = "l", lty = 1, xlab = "Survival Time (days)", 
      ylab = "Probability", ylim = c(0, 1))
 lines(p1[[1]]$time, p2[,1], lty = 2)
-legend("topright", lty = 1:2, legend = c("flexsurvspline", "mlt"), bty = "n")
+p3 <- survfit(coxph_GBSG2_1, newdata = GBSG2[1,])
+lines(p3$time, p3$surv, lty = 3)
+legend("topright", lty = 1:3, legend = c("flexsurvspline", "mlt", "coxph"), bty = "n")
 @
 \caption{GBSG-2 Trial. Estimated survivor functions for patient 1  
          by the most likely transformation model (MLT) and the \cite{Royston_Parmar_2002} spline
-         model fitted using \cmd{flexsurvspline}. \label{GBSG2-1-fss-plot}}
+         model fitted using \cmd{flexsurvspline} as well as based on the Nelson-Aalen-Breslow
+         estimator from \cmd{coxph}. \label{GBSG2-1-fss-plot}}
 \end{center}
 \end{figure}
 
@@ -1061,7 +1142,7 @@ conditional on health, people are getting happier as they get older \emph{and} r
 
 \paragraph{Survival Analysis: GBSG-2 Trial (Cont'd)}
 
-The Cox model presented in Subsection~\ref{subsec:ltm} features one baseline
+The Cox model presented in Section~\ref{subsec:ltm} features one baseline
 function for all observations, an assumption which we're now going to relax. As
 a first simple example, we want to estimate two separate survivor functions 
 for the two treatment regimes in the model
@@ -1334,7 +1415,8 @@ b_horTh <- as.basis(GBSG2$horTh)
 ctm_GBSG2_8 <- ctm(B_GBSG2y, 
                    interacting = b(horTh = b_horTh, age = B_age), 
                    todistr = "MinExtrVal")
-mlt_GBSG2_8  <- mlt(ctm_GBSG2_8, data = GBSG2)
+mlt_GBSG2_8  <- mlt(ctm_GBSG2_8, data = GBSG2, maxit = 5000, 
+                    gtol = 1e-3)
 logLik(mlt_GBSG2_8)
 AIC(mlt_GBSG2_8)
 @
@@ -1384,7 +1466,7 @@ approximate log-likelihood under $3 \times 4$ linear constraints
 <<head, echo = TRUE, cache = TRUE>>=
 data("db", package = "gamlss.data")
 db$lage <- with(db, age^(1/3))
-var_head = numeric_var("head", support = quantile(db$head, c(.1, .9)),
+var_head <- numeric_var("head", support = quantile(db$head, c(.1, .9)),
                        bounds = range(db$head))
 B_head <- Bernstein_basis(var_head, order = 3, ui = "increasing")
 var_lage <- numeric_var("lage", support = quantile(db$lage, c(.1, .9)),
@@ -2022,8 +2104,8 @@ The results obtained using these functions are
 practically identical to those obtained from the unified implementation of
 transformation models in \pkg{mlt} as shown in the various examples
 presented in Section~\ref{sec:trafo}.  Other packages offer estimation of
-the Cox model for interval-censored responses, for example \pkg{intcox}
-\citep{pkg:intcox}, \pkg{coxinterval} \citep{pkg:coxinterval}, \pkg{MIICD}
+the Cox model for interval-censored responses, for example 
+\pkg{coxinterval} \citep{pkg:coxinterval}, \pkg{MIICD}
 \citep{pkg:MIICD} and \pkg{ICsurv} \citep{pkg:ICsurv}.  No special treatment
 of this situation is necessary in \pkg{mlt} as the likelihood maximised by
 \cmd{mlt} allows arbitrary schemes of random censoring and also truncation.
@@ -2118,7 +2200,7 @@ statistical modelling literature.
 
 \section*{Appendix}
 
-\section{The variables Package} \label{app:variables}
+\section[The variables Package]{The \pkg{variables} Package} \label{app:variables}
 
 The \pkg{variables} packages \citep{pkg:variables} offers a small collection
 of classes and methods for specifying and computing on abstract variable
@@ -2257,7 +2339,7 @@ check(vars, data = nd)
 @
 
 
-\section{The basefun Package} \label{app:basefun}
+\section[The basefun Package]{The \pkg{basefun} Package} \label{app:basefun}
 
 The \pkg{basefun} package \citep{pkg:basefun} implements Bernstein,
 Legendre, log and polynomial basis functions.  In addition, facilities for
@@ -2351,7 +2433,7 @@ Model matrices are basis functions evaluated at some data. The \pkg{basefun}
 package offers an \cmd{as.basis} method for \code{formula} objects which
 basically represents unevaluated calls to \cmd{model.matrix} with two
 additional arguments (\code{remove_intercept} removes the intercept
-\textit{after} appropriate contrasts where computed and \code{negative}
+\textit{after} appropriate contrasts were computed and \code{negative}
 multiplies the model matrix with $-1$).  Note that the \code{data} argument
 does not need to be a \code{data.frame} with observations, a variable
 description is sufficient. If \code{data} is a data frame of observations,
@@ -2400,7 +2482,7 @@ head(X <- model.matrix(bfb, data = nd))
 attr(X, "constraint")
 @
 
-\section{The mlt Package} \label{app:mlt}
+\section[The mlt Package]{The \pkg{mlt} Package} \label{app:mlt}
 
 \subsection{Specifying Response Observations} \label{subapp:R}
 
@@ -2483,22 +2565,27 @@ By <- Bernstein_basis(yvar, order = ord <- 15, ui = "increasing")
 @
 The \emph{unfitted} model is now
 <<mlt-chi-mlt>>=
-m <- ctm(By)
-d <- as.data.frame(mkgrid(yvar, n = 500))
-mod <- mlt(m, data = d, dofit = FALSE)
+mod <- ctm(By)
 @
 and we compute the true transformation function
 <<mlt-chi-trafo>>=
 h <- function(x) qnorm(pY(x))
 x <- seq(from = support(yvar)[["y"]][1], to = support(yvar)[["y"]][2], 
          length.out = ord + 1)
+@
+and set the parameters of the model using
+<<mlt-chi-coef>>=
 mlt::coef(mod) <- h(x)
 @
-We can now simulate from this model
+We can now simulate from this \emph{purely theoretical} model
 <<mlt-chi-sim>>=
+d <- as.data.frame(mkgrid(yvar, n = 500))
 d$grid <- d$y
-d$y <- simulate(mod)
-fmod <- mlt(m, data = d, scale = TRUE)
+d$y <- simulate(mod, newdata = d)
+@
+and fit this model to the simulated data
+<<mlt-chi-fit>>=
+fmod <- mlt(mod, data = d, scale = TRUE)
 @
 and compare the true (\code{mod}) and fitted
 (\code{fmod}) models by looking at the coefficients
@@ -2587,7 +2674,7 @@ pkg <- function(pkg)
           pkgversion(pkg), ",][]{pkg:", pkg, "}", sep = "")
 
 pkgs <- c("mlt", "variables", "basefun", "survival", "eha", "prodlim", "truncreg", "MASS", "nnet", "HSAUR3", "sandwich", 
-  "flexsurv", "multcomp", "mgcv", "intcox", "coxinterval", "ICsurv",
+  "flexsurv", "multcomp", "mgcv", "coxinterval", "ICsurv",
   "polspline", "logspline", "bshazard", "gss", "MIICD", "TransModel",
   "dynsurv", "timereg", "survivalMPL", "np", "gamlss", "Matrix", "muhaz", "ICE",
   "ordinal", "VGAM", "BB")
