@@ -41,6 +41,10 @@ knitr::set_header(highlight = '')  # do not \usepackage{Sweave}
 options(prompt = "R> ", continue = "+  ", useFancyQuotes = FALSE)  # JSS style
 options(width = 75)
 
+## ----citation, echo = FALSE----------------------------------------------
+year <- substr(packageDescription("mlt.docreg")$Date, 1, 4)
+version <- packageDescription("mlt.docreg")$Version
+
 ## ----geyser-var, echo = TRUE---------------------------------------------
 library("mlt")
 var_d <- numeric_var("duration", support = c(1.0, 5.0), 

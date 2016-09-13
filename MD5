@@ -1,12 +1,12 @@
-e0728a42e279d9f7c34922dde58f6a73 *DESCRIPTION
+440f937769dd2bebc5940654df31da44 *DESCRIPTION
 415aecc93039ecdb32d9b3ff3ae81c9a *NAMESPACE
 dfd98875adb1c7379afa8b6e400fc5d2 *R/checkGH.R
-8f76aa7ff6587b0ba2f966d1adfeebee *build/vignette.rds
+819eeca0950f6a5295cd168e6f1f8fd8 *build/vignette.rds
 1c9695dee7162d6e72883b552906e753 *cleanup
-26d65011eb3e4aa91a4813affe41bba5 *inst/NEWS.Rd
-95bd20e5cd3bc5b25b7b89675aa7315a *inst/doc/mlt.R
-3b074689d2a55599af6be300f6154d64 *inst/doc/mlt.Rnw
-de1aeec268fc5c7ab8d1b6aad633dad4 *inst/doc/mlt.pdf
+fb849413c9946391f6a403a8f5e33b4e *inst/NEWS.Rd
+5f88bf7b9e536c29d0c3395ccedc824d *inst/doc/mlt.R
+cd18f05d58c70a7d6e648e64fc23358f *inst/doc/mlt.Rnw
+650c10232c0ae306becdc24cb64e45b2 *inst/doc/mlt.pdf
 3fe6cabc8fc4a2c654e0b7d67fc4740d *man/checkGH.Rd
 fc651bd905b59d8697188bef2946d9e1 *tests/AFT-Ex.R
 80c01bb609f226690ff14b61d1d6dac9 *tests/AFT-Ex.Rout.save
@@ -19,5 +19,5 @@ ee068d9e52cc0676e751ce471d44482d *tests/truncreg-Ex.Rout.save
 7e6428e9e11831bf21227a163bab80e9 *tests/udist-Ex.R
 b3d687996336683dd9ab20eedff25c3e *tests/udist-Ex.Rout.save
 12a0856b4d3e4338a1ead90537b29dad *vignettes/defs.tex
-3b074689d2a55599af6be300f6154d64 *vignettes/mlt.Rnw
+cd18f05d58c70a7d6e648e64fc23358f *vignettes/mlt.Rnw
 dfbaccd8f7b7fadf6a4c856f3bbb5cb5 *vignettes/mlt.bib
