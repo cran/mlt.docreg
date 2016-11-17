@@ -3,7 +3,7 @@ set.seed(290875)
 
 sapply(c("mlt", "survival", "eha", "prodlim", "truncreg", "lattice", "gridExtra",
          "MASS", "nnet", "HSAUR3", "sandwich", "flexsurv", "grid", "latticeExtra", 
-         "colorspace", "multcomp"), library, char = TRUE)
+         "colorspace", "multcomp", "alabama"), library, char = TRUE)
 
 if (!file.exists("analysis/DVC.rda")) {
     download.file("https://zenodo.org/record/17179/files/DVC.tgz", "DVC.tgz")
@@ -196,10 +196,10 @@ coxph_GBSG2_1 <- coxph(fm_GBSG2, data = GBSG2, ties = "breslow")
 cf <- coef(coxph_GBSG2_1)
 cbind(coxph = cf, mlt = coef(mlt_GBSG2_1)[names(cf)])
 
-## ----GBSG2-coxph_mlt, echo = FALSE, results = "hide"---------------------
+## ----GBSG2-coxph_mlt, echo = FALSE, results = "hide", fig.width = 9, fig.height = 5----
 ndtmp <- as.data.frame(mkgrid(GBSG2y, 100))
 
-ord <- 1:30
+ord <- c(1:30, 35, 40, 45, 50)
 p <- vector(mode = "list", length = length(ord))
 CF <- c()
 ll <- numeric(length(ord))
@@ -221,12 +221,9 @@ for (i in 1:length(ord)) {
 }
 colnames(CF) <- names(cf)
 
-nd0 <- as.data.frame(lapply(GBSG2, function(x) {
-    if (is.numeric(x)) return(0)
-    if (is.factor(x)) x[x == levels(x)[1]][1]
-}))
-
-b <- survfit(coxph_GBSG2_1, newdata = nd0)
+of <- model.matrix(coxph_GBSG2_1) %*% coef(coxph_GBSG2_1) 
+coxphtmp <- coxph(Surv(time, cens) ~ 1  + offset(of), data = GBSG2)
+b <- survfit(coxphtmp)
 layout(matrix(1:2, nc = 2))
 col <- rgb(.1, .1, .1, .1)
 ylim <- range(unlist(p))
@@ -236,11 +233,11 @@ out <- sapply(p, function(y) lines(ndtmp$y, y, col = col))
 lines(b$time, log(b$cumhaz), col = "red")
 
 ylim <- range(CF)
-plot(ord, CF[,1], ylim = ylim, col = col[1], xlab = "Order M", 
-     ylab = "Coefficients")
+plot(ord, CF[,1], ylim = ylim, col = col[1], xlab = "Order M",
+     ylab = "Coefficients", type = "n")
 for (i in 1:ncol(CF)) {
-    points(ord, CF[,i], cex = .5)
-    abline(h = coef(coxph_GBSG2_1)[i])
+    points(ord, CF[,i], cex = .5, pch = 19)
+    abline(h = coef(coxph_GBSG2_1)[i], col = "darkgrey")
 }
 # text(20, coef(coxph_GBSG2_1) + .1, names(coef(coxph_GBSG2_1)))
 
