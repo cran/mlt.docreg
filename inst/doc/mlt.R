@@ -592,8 +592,8 @@ B_cs <- Bernstein_basis(var = numeric_var("coverstorey", support = 1:110),
                         order = 4)
 B_c <- as.basis(treepipit$ocounts)
 ctm_treepipit <- ctm(B_c, interacting = B_cs)
-mlt_treepipit <- mlt(ctm_treepipit, data = treepipit, maxit = 10000, 
-                     gtol = 1e-3)
+mlt_treepipit <- mlt(ctm_treepipit, data = treepipit, scale = TRUE,
+                     optim = mltoptim()["spg"])
 
 ## ----mgcv, echo = FALSE, results = "hide"--------------------------------
 library("mgcv") ### masks nnet::multinom
