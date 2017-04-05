@@ -128,7 +128,7 @@ plot(ecdf(geyser$waiting), col = "grey", xlab = "Waiting times", ylab = "Distrib
 lines(nd_w$waiting, nd_w$d)
 B_w_40 <- Bernstein_basis(order = 40, var = var_w, ui = "incre")
 ctm_w_40 <- ctm(B_w_40, todistr = "Normal")
-mlt_w_40 <- mlt(ctm_w_40, data = geyser, maxit = 5000)
+mlt_w_40 <- mlt(ctm_w_40, data = geyser)
 nd_w$d2 <- predict(mlt_w_40, q = nd_w$waiting, type = "distribution")
 lines(nd_w$waiting, nd_w$d2, lty = 2)
 legend("bottomright", lty = 1:2, legend = c("M = 8", "M = 40"), bty = "n")
@@ -142,10 +142,12 @@ var_dvc <- numeric_var("dvc", support = min(dvc):max(dvc))
 B_dvc <- Bernstein_basis(var_dvc, order = 6, ui = "increasing")
 dvc_mlt <- mlt(ctm(B_dvc), data = data.frame(dvc = dvc))
 
-## ----dvc-plot, echo = FALSE----------------------------------------------
-q <- support(var_dvc)[[1]]
+## ----dvc-predict---------------------------------------------------------
+range(q <- support(var_dvc)[[1]])
 p <- predict(dvc_mlt, newdata = data.frame(1), q = q,
              type = "distribution")
+
+## ----dvc-plot, echo = FALSE----------------------------------------------
 plot(ecdf(dvc), col = "grey", xlab = "Number of Roe Deer-Vehicle Collisions",
      ylab = "Distribution", main = "", cex = .75)
 lines(q, p, col = "blue")
@@ -186,17 +188,17 @@ ctm_GBSG2_1 <- ctm(B_GBSG2y, shifting = fm_GBSG2[-2L], data = GBSG2,
                    todistr = "MinExtrVal")
 
 ## ----GBSG2-1-xbasis, eval = FALSE----------------------------------------
-#  as.basis(fm_GBSG2[-2L], data = GBSG2, remove_intercept)
+#  as.basis(fm_GBSG2[-2L], data = GBSG2, remove_intercept = TRUE)
 
 ## ----GBSG2-1-mlt---------------------------------------------------------
-mlt_GBSG2_1 <- mlt(ctm_GBSG2_1, data = GBSG2, maxit = 3000, scale = TRUE)
+mlt_GBSG2_1 <- mlt(ctm_GBSG2_1, data = GBSG2, scale = TRUE)
 
 ## ----GBSG2-1-coxph-------------------------------------------------------
 coxph_GBSG2_1 <- coxph(fm_GBSG2, data = GBSG2, ties = "breslow")
 cf <- coef(coxph_GBSG2_1)
 cbind(coxph = cf, mlt = coef(mlt_GBSG2_1)[names(cf)])
 
-## ----GBSG2-coxph_mlt, echo = FALSE, results = "hide", fig.width = 9, fig.height = 5----
+## ----GBSG2-coxph_mlt, echo = FALSE, results = "hide", fig.width = 9, fig.height = 5, cache = TRUE----
 ndtmp <- as.data.frame(mkgrid(GBSG2y, 100))
 
 ord <- c(1:30, 35, 40, 45, 50)
@@ -210,7 +212,7 @@ for (i in 1:length(ord)) {
     B_GBSG2ytmp <- Bernstein_basis(var = GBSG2y, order = ord[i], ui = "increasing")
     ctmi <- ctm(B_GBSG2ytmp, shifting = fm_GBSG2[-2L], data = GBSG2,
                    todistr = "MinExtrVal")
-    tm[i] <- system.time(mlti <- mlt(ctmi, data = GBSG2, maxit = 3000, scale = TRUE))[1]
+    tm[i] <- system.time(mlti <- mlt(ctmi, data = GBSG2, scale = TRUE))[1]
 
     ll[i] <- logLik(mlti)
     p[[i]] <- predict(mlti, newdata = ndtmp, type = "trafo", terms = "bresponse")
@@ -279,10 +281,7 @@ cbind(survreg = coef(survreg_GBSG2_2)[names(cf)],
       mlt = coef(mlt_GBSG2_2)[names(cf)])
 
 ## ----GBSG2-3-------------------------------------------------------------
-ctm_GBSG2_3 <- ctm(log_basis(GBSG2y, ui = "increasing"), 
-                   shifting = fm_GBSG2[-2L], data = GBSG2, 
-                   negative = TRUE, todistr = "MinExtrVal")
-mlt_GBSG2_3 <- mlt(ctm_GBSG2_3, data = GBSG2, scale = TRUE)
+mlt_GBSG2_3 <- mlt(ctm_GBSG2_2, data = GBSG2, scale = TRUE)
 survreg_GBSG2_3 <- survreg(fm_GBSG2, data = GBSG2, dist = "weibull")
 phreg_GBSG2_3 <- phreg(fm_GBSG2, data = GBSG2, dist = "weibull")
 logLik(survreg_GBSG2_3)
@@ -379,16 +378,14 @@ AIC(mlt_PSID1976_2)
 ## ----CHFLS-3, cache = TRUE-----------------------------------------------
 b_health <- as.basis(~ R_health - 1, data = CHFLS)
 ctm_CHFLS_3 <- ctm(b_happy, interacting = b_health, todist = "Logistic")
-mlt_CHFLS_3 <- mlt(ctm_CHFLS_3, data = CHFLS, scale = TRUE,
-                   maxit = 5000, gtol = 1e-3)
+mlt_CHFLS_3 <- mlt(ctm_CHFLS_3, data = CHFLS, scale = TRUE)
 logLik(mlt_CHFLS_3)
 predict(mlt_CHFLS_3, newdata = mkgrid(mlt_CHFLS_3), type = "distribution")
 
 ## ----CHFLS-4, cache = TRUE-----------------------------------------------
 ctm_CHFLS_4 <- ctm(b_happy, interacting = b_health, shifting = b_R, 
                    todist = "Logistic")
-mlt_CHFLS_4 <- mlt(ctm_CHFLS_4, data = CHFLS, scale = TRUE, 
-                   maxit = 5000)
+mlt_CHFLS_4 <- mlt(ctm_CHFLS_4, data = CHFLS, scale = TRUE)
 coef(mlt_CHFLS_4)[c("R_age", "R_income")]
 
 ## ----GBSG2-4-------------------------------------------------------------
@@ -427,23 +424,20 @@ cbind(coxph = cf, mlt = coef(mlt_GBSG2_5)[names(cf)])
 contrasts(CHFLS$R_health) <- "contr.treatment"
 b_health <- as.basis(~ R_health, data = CHFLS)
 ctm_CHFLS_5 <- ctm(b_happy, interacting = b_health, todist = "Logistic")
-mlt_CHFLS_5 <- mlt(ctm_CHFLS_5, data = CHFLS, scale = TRUE, 
-                   maxit = 10000, gtol = 1e-3)
+mlt_CHFLS_5 <- mlt(ctm_CHFLS_5, data = CHFLS, scale = TRUE)
 predict(mlt_CHFLS_5, newdata = mkgrid(mlt_CHFLS_5), type = "distribution")
 logLik(mlt_CHFLS_5)
 
 ## ----CHFLS-6, cache = TRUE-----------------------------------------------
-b_R <- as.basis(~ R_age + R_income, data = CHFLS, remove_intercept = TRUE)
+b_R <- as.basis(~ R_age + R_income, data = CHFLS, remove_intercept = TRUE, scale = TRUE)
 ctm_CHFLS_6 <- ctm(b_happy, interacting = b_R, todist = "Logistic")  
-mlt_CHFLS_6 <- mlt(ctm_CHFLS_6, data = CHFLS, scale = TRUE,
-                   maxit = 5000, gtol = 1e-3)
+mlt_CHFLS_6 <- mlt(ctm_CHFLS_6, data = CHFLS, scale = TRUE)
 logLik(mlt_CHFLS_6)
 
 ## ----CHFLS-7, cache = TRUE-----------------------------------------------
 ctm_CHFLS_7 <- ctm(b_happy, interacting = c(h = b_health, R = b_R), 
     todist = "Logistic")  
-mlt_CHFLS_7 <- mlt(ctm_CHFLS_7, data = CHFLS, scale = TRUE,
-                   maxit = 10000, gtol = 1e-3)
+mlt_CHFLS_7 <- mlt(ctm_CHFLS_7, data = CHFLS, scale = TRUE)
 logLik(mlt_CHFLS_7)
 
 ## ----CHFLS-AIC-----------------------------------------------------------
@@ -458,8 +452,8 @@ multinom_iris <- nnet::multinom(fm_iris, data = iris, trace = FALSE)
 logLik(multinom_iris)
 iris$oSpecies <- ordered(iris$Species)
 b_Species <- as.basis(iris$oSpecies)
-ctm_iris <- ctm(b_Species, 
-                interacting = as.basis(fm_iris[-2L], data = iris), 
+b_x <- as.basis(fm_iris[-2L], data = iris, scale = TRUE)
+ctm_iris <- ctm(b_Species, interacting = b_x,
                 todistr = "Logistic")
 mlt_iris <- mlt(ctm_iris, data = iris, scale = TRUE)
 logLik(mlt_iris)
@@ -479,6 +473,9 @@ AIC(mlt_GBSG2_6)
 b_horTh <- as.basis(~ horTh, data = GBSG2)
 ctm_GBSG2_7 <- ctm(B_GBSG2y, interacting = b_horTh, 
                    todistr = "MinExtrVal")
+### check sum constraint
+nd <- data.frame(y = GBSG2$time[1:2], horTh = unique(GBSG2$horTh))
+attr(model.matrix(ctm_GBSG2_7, data = nd), "constraint")
 mlt_GBSG2_7 <- mlt(ctm_GBSG2_7, data = GBSG2)
 logLik(mlt_GBSG2_7)
 AIC(mlt_GBSG2_7)
@@ -500,7 +497,7 @@ K[,length(coef(mlt_GBSG2_6))] <- 1
 ci2 <- confint(glht(mlt_GBSG2_6, K))
 
 plot(coxy, ci$confint[, "Estimate"], ylim = range(ci$confint), type = "n",
-     xlab = "Survival time (days)", ylab = "Transformation deviation", las = 1)
+     xlab = "Survival time (days)", ylab = "Log-hazard ratio", las = 1)
 polygon(c(coxy, rev(coxy)), c(ci$confint[,"lwr"], rev(ci$confint[, "upr"])),
         border = NA, col = rgb(.1, .1, .1, .1))
 lines(coxy, ci$confint[, "Estimate"], lty = 1, lwd = 1)
@@ -509,7 +506,7 @@ lines(coxy, rep(0, length(coxy)), lty = 3)
 polygon(c(coxy[c(1, length(coxy))], rev(coxy[c(1, length(coxy))])),
         rep(ci2$confint[,c("lwr", "upr")], c(2, 2)),
         border = NA, col = rgb(.1, .1, .1, .1))
-legend("bottomright", lty = 1:2, lwd = 1, legend = c("time-varying treatment effect",
+legend("bottomright", lty = 1:2, lwd = 1, legend = c("time-varying log-hazard ratio",
        "time-constant log-hazard ratio"), bty = "n", cex = .75)
 
 ## ----GBSG2-8, echo = TRUE, cache = TRUE----------------------------------
@@ -519,8 +516,7 @@ b_horTh <- as.basis(GBSG2$horTh)
 ctm_GBSG2_8 <- ctm(B_GBSG2y, 
                    interacting = b(horTh = b_horTh, age = B_age), 
                    todistr = "MinExtrVal")
-mlt_GBSG2_8  <- mlt(ctm_GBSG2_8, data = GBSG2, maxit = 5000, 
-                    gtol = 1e-3)
+mlt_GBSG2_8  <- mlt(ctm_GBSG2_8, data = GBSG2)
 logLik(mlt_GBSG2_8)
 AIC(mlt_GBSG2_8)
 
@@ -544,7 +540,7 @@ var_lage <- numeric_var("lage", support = quantile(db$lage, c(.1, .9)),
                         bounds = range(db$lage))
 B_age <- Bernstein_basis(var_lage, order = 3, ui = "none")
 ctm_head <- ctm(B_head, interacting = B_age)
-mlt_head <- mlt(ctm_head, data = db, maxit = 5000, scale = TRUE)
+mlt_head <- mlt(ctm_head, data = db, scale = TRUE)
 
 ## ----head-plot, echo = FALSE---------------------------------------------
 pr <- expand.grid(s <- mkgrid(ctm_head, 100))
@@ -562,14 +558,18 @@ print(contourplot(p ~ lage + head | cut, data = pr, panel = pfun, region = FALSE
             xlab = "Age (years)", ylab = "Head circumference (cm)",
             scales = list(x = list(relation = "free"))))
 
-## ----BostonHousing-dr, cache = TRUE--------------------------------------
+## ----BostonHousing-dr-sumconstr, cache = TRUE----------------------------
 b_BH_s <- as.basis(fm_BH[-2L], data = BostonHousing2, scale = TRUE)
-ctm_BHi <- ctm(B_m, interacting = b_BH_s, sumconstr = FALSE)
-mlt_BHi <- mlt(ctm_BHi, data = BostonHousing2, scale = TRUE, 
-               maxit = 5000, gtol = 1e-3)
+ctm_BHi <- ctm(B_m, interacting = b_BH_s, sumconstr = TRUE)
+mlt_BHi <- mlt(ctm_BHi, data = BostonHousing2)
 logLik(mlt_BHi)
 AIC(mlt_BHi)
-AIC(mlt_BH)
+
+## ----BostonHousing-dr, cache = TRUE--------------------------------------
+ctm_BHi2 <- ctm(B_m, interacting = b_BH_s, sumconstr = FALSE)
+mlt_BHi2 <- mlt(ctm_BHi2, data = BostonHousing2)
+logLik(mlt_BHi2)
+AIC(mlt_BHi2)
 
 ## ----Boston-Housing-dr-plot, echo = FALSE--------------------------------
 q <- mkgrid(var_m, 100)[[1]]
@@ -577,13 +577,17 @@ tr <- predict(mlt_BH, newdata = BostonHousing2[, all.vars(fm_BH[-2L])],
               q = q, type = "density")
 tri <- predict(mlt_BHi, newdata = BostonHousing2[, all.vars(fm_BH[-2L])],
               q = q, type = "density")
-layout(matrix(1:2, ncol = 2))
+tri2 <- predict(mlt_BHi2, newdata = BostonHousing2[, all.vars(fm_BH[-2L])],
+              q = q, type = "density")
+layout(matrix(1:3, ncol = 3))
 Q <- matrix(q, nrow = length(q), ncol = ncol(tr))
 ylim <- range(c(tr, tri))
 matplot(Q, tr, ylim = ylim, xlab = "Median Value", ylab = "Density",
-        type = "l", col = rgb(.1, .1, .1, .1), lty = 1) 
+        type = "l", col = rgb(.1, .1, .1, .1), lty = 1, main = "mlt_BH") 
 matplot(Q, tri, ylim = ylim, xlab = "Median Value", ylab = "Density",
-        type = "l", col = rgb(.1, .1, .1, .1), lty = 1)
+        type = "l", col = rgb(.1, .1, .1, .1), lty = 1, main = "mlt_BHi")
+matplot(Q, tri2, ylim = ylim, xlab = "Median Value", ylab = "Density",
+        type = "l", col = rgb(.1, .1, .1, .1), lty = 1, main = "mlt_BHi2")
 
 ## ----treepipit, echo = TRUE, cache = TRUE--------------------------------
 data("treepipit", package = "coin")
