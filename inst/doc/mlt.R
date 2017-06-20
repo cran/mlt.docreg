@@ -3,7 +3,7 @@ set.seed(290875)
 
 sapply(c("mlt", "survival", "eha", "prodlim", "truncreg", "lattice", "gridExtra",
          "MASS", "nnet", "HSAUR3", "sandwich", "flexsurv", "grid", "latticeExtra", 
-         "colorspace", "multcomp", "alabama"), library, char = TRUE)
+         "colorspace", "multcomp"), library, char = TRUE)
 
 if (!file.exists("analysis/DVC.rda")) {
     download.file("https://zenodo.org/record/17179/files/DVC.tgz", "DVC.tgz")
