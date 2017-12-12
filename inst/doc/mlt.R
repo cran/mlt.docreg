@@ -99,10 +99,10 @@ logLik(mlt_CHFLS_1)
 cbind(polr = polr_CHFLS_1$zeta, mlt = coef(mlt_CHFLS_1))
 
 ## ----CHFLS-1-pred--------------------------------------------------------
-predict(polr_CHFLS_1, newdata = data.frame(1), type = "prob")
-c(predict(mlt_CHFLS_1, newdata = data.frame(1), type = "density", 
-          q = mkgrid(b_happy)[[1]]))
-xtabs(~ R_happy, data = CHFLS) / nrow(CHFLS)
+cbind(polr = predict(polr_CHFLS_1, newdata = data.frame(1), type = "prob"),
+      mlt = c(predict(mlt_CHFLS_1, newdata = data.frame(1), 
+                      type = "density", q = mkgrid(b_happy)[[1]])),
+      direct = xtabs(~ R_happy, data = CHFLS) / nrow(CHFLS))
 
 ## ----geyser-w------------------------------------------------------------
 var_w <- numeric_var("waiting", support = c(40.0, 100), add = c(-5, 15), 
@@ -143,7 +143,7 @@ B_dvc <- Bernstein_basis(var_dvc, order = 6, ui = "increasing")
 dvc_mlt <- mlt(ctm(B_dvc), data = data.frame(dvc = dvc))
 
 ## ----dvc-predict---------------------------------------------------------
-range(q <- support(var_dvc)[[1]])
+q <- support(var_dvc)[[1]]
 p <- predict(dvc_mlt, newdata = data.frame(1), q = q,
              type = "distribution")
 
@@ -198,7 +198,7 @@ coxph_GBSG2_1 <- coxph(fm_GBSG2, data = GBSG2, ties = "breslow")
 cf <- coef(coxph_GBSG2_1)
 cbind(coxph = cf, mlt = coef(mlt_GBSG2_1)[names(cf)])
 
-## ----GBSG2-coxph_mlt, echo = FALSE, results = "hide", fig.width = 9, fig.height = 5, cache = TRUE----
+## ----GBSG2-coxph_mlt, echo = FALSE, results = "hide", cache = TRUE-------
 ndtmp <- as.data.frame(mkgrid(GBSG2y, 100))
 
 ord <- c(1:30, 35, 40, 45, 50)
@@ -230,7 +230,7 @@ layout(matrix(1:2, nc = 2))
 col <- rgb(.1, .1, .1, .1)
 ylim <- range(unlist(p))
 plot(ndtmp$y, p[[1]], type = "l", ylim =  ylim, col = col, xlab = "Survival Time (days)",
-     ylab = "Log Cumulative Hazard")
+     ylab = "Log-cumulative Hazard")
 out <- sapply(p, function(y) lines(ndtmp$y, y, col = col))
 lines(b$time, log(b$cumhaz), col = "red")
 
@@ -244,8 +244,9 @@ for (i in 1:ncol(CF)) {
 # text(20, coef(coxph_GBSG2_1) + .1, names(coef(coxph_GBSG2_1)))
 
 ## ----GBSG2-1-fss, cache = TRUE-------------------------------------------
+kn <- log(support(GBSG2y)$y)
 fss_GBSG2_1 <- flexsurvspline(fm_GBSG2, data = GBSG2, scale = "hazard", 
-                              k = 9, bknots = log(support(GBSG2y)$y))
+                              k = 9, bknots = kn)
 logLik(fss_GBSG2_1)
 logLik(mlt_GBSG2_1)
 cf <- coef(coxph_GBSG2_1)
@@ -272,7 +273,8 @@ mlt_GBSG2_2 <- mlt(ctm_GBSG2_2, data = GBSG2, fixed = c("log(y)" = 1),
 
 ## ----GBSG2-2-exp---------------------------------------------------------
 survreg_GBSG2_2 <- survreg(fm_GBSG2, data = GBSG2, dist = "exponential")
-phreg_GBSG2_2 <- phreg(fm_GBSG2, data = GBSG2, dist = "weibull", shape = 1)
+phreg_GBSG2_2 <- phreg(fm_GBSG2, data = GBSG2, dist = "weibull", 
+                       shape = 1)
 logLik(survreg_GBSG2_2)
 logLik(phreg_GBSG2_2)
 logLik(mlt_GBSG2_2)
@@ -302,11 +304,20 @@ var_m <- numeric_var("medvc", support = c(10.0, 40.0), bounds = c(0, Inf))
 fm_BH <- medvc ~ crim + zn + indus + chas + nox + rm + age + 
                  dis + rad + tax + ptratio + b + lstat
 
+## ----BostonHousng-mlt-linear---------------------------------------------
+B_m <- polynomial_basis(var_m, coef = c(TRUE, TRUE), 
+                        ui = matrix(c(0, 1), nrow = 1), ci = 0)
+ctm_BH <- ctm(B_m, shift = fm_BH[-2L], data = BostonHousing2, 
+              todistr = "Normal")
+lm_BH_2 <- mlt(ctm_BH, data = BostonHousing2, scale = TRUE)
+logLik(lm_BH_2)
+
 ## ----BostonHousing-ctm---------------------------------------------------
 B_m <- Bernstein_basis(var_m, order = 6, ui = "increasing")
 ctm_BH <- ctm(B_m, shift = fm_BH[-2L], data = BostonHousing2, 
               todistr = "Normal")
 mlt_BH <- mlt(ctm_BH, data = BostonHousing2, scale = TRUE)
+logLik(mlt_BH)
 
 ## ----BostonHousing-plot, echo = FALSE, results = "hide"------------------
 q <- 3:52
@@ -372,8 +383,6 @@ ctm_PSID1976_2 <- ctm(B_hours, shift = fm_PSID1976[-2L],
 mlt_PSID1976_2 <- mlt(ctm_PSID1976_2, data = PSID1976_0, 
                       scale = TRUE)
 logLik(mlt_PSID1976_2)
-AIC(mlt_PSID1976_1)
-AIC(mlt_PSID1976_2)
 
 ## ----CHFLS-3, cache = TRUE-----------------------------------------------
 b_health <- as.basis(~ R_health - 1, data = CHFLS)
@@ -429,7 +438,8 @@ predict(mlt_CHFLS_5, newdata = mkgrid(mlt_CHFLS_5), type = "distribution")
 logLik(mlt_CHFLS_5)
 
 ## ----CHFLS-6, cache = TRUE-----------------------------------------------
-b_R <- as.basis(~ R_age + R_income, data = CHFLS, remove_intercept = TRUE, scale = TRUE)
+b_R <- as.basis(~ R_age + R_income, data = CHFLS, remove_intercept = TRUE, 
+                scale = TRUE)
 ctm_CHFLS_6 <- ctm(b_happy, interacting = b_R, todist = "Logistic")  
 mlt_CHFLS_6 <- mlt(ctm_CHFLS_6, data = CHFLS, scale = TRUE)
 logLik(mlt_CHFLS_6)
@@ -439,11 +449,6 @@ ctm_CHFLS_7 <- ctm(b_happy, interacting = c(h = b_health, R = b_R),
     todist = "Logistic")  
 mlt_CHFLS_7 <- mlt(ctm_CHFLS_7, data = CHFLS, scale = TRUE)
 logLik(mlt_CHFLS_7)
-
-## ----CHFLS-AIC-----------------------------------------------------------
-c("1" = AIC(mlt_CHFLS_1), "2" = AIC(mlt_CHFLS_2), "3" = AIC(mlt_CHFLS_3),
-  "4" = AIC(mlt_CHFLS_4), "5" = AIC(mlt_CHFLS_5), "6" = AIC(mlt_CHFLS_6),
-  "7" = AIC(mlt_CHFLS_7))
 
 ## ----iris-1--------------------------------------------------------------
 fm_iris <- Species ~ Sepal.Length + Sepal.Width + 
@@ -467,18 +472,15 @@ ctm_GBSG2_6 <- ctm(B_GBSG2y, shifting = ~ horTh, data = GBSG2,
                    todistr = "MinExtrVal")
 mlt_GBSG2_6 <- mlt(ctm_GBSG2_6, data = GBSG2)
 logLik(mlt_GBSG2_6)
-AIC(mlt_GBSG2_6)
 
 ## ----GBSG2-7-------------------------------------------------------------
 b_horTh <- as.basis(~ horTh, data = GBSG2)
 ctm_GBSG2_7 <- ctm(B_GBSG2y, interacting = b_horTh, 
                    todistr = "MinExtrVal")
-### check sum constraint
 nd <- data.frame(y = GBSG2$time[1:2], horTh = unique(GBSG2$horTh))
 attr(model.matrix(ctm_GBSG2_7, data = nd), "constraint")
 mlt_GBSG2_7 <- mlt(ctm_GBSG2_7, data = GBSG2)
 logLik(mlt_GBSG2_7)
-AIC(mlt_GBSG2_7)
 
 ## ----GBSG2-deviation-plot, echo = FALSE, results = "hide"----------------
 
@@ -518,7 +520,6 @@ ctm_GBSG2_8 <- ctm(B_GBSG2y,
                    todistr = "MinExtrVal")
 mlt_GBSG2_8  <- mlt(ctm_GBSG2_8, data = GBSG2)
 logLik(mlt_GBSG2_8)
-AIC(mlt_GBSG2_8)
 
 ## ----GBSG2-8-plot, echo = FALSE------------------------------------------
 nlev <- c(no = "without hormonal therapy", yes = "with hormonal therapy")
@@ -563,15 +564,13 @@ b_BH_s <- as.basis(fm_BH[-2L], data = BostonHousing2, scale = TRUE)
 ctm_BHi <- ctm(B_m, interacting = b_BH_s, sumconstr = TRUE)
 mlt_BHi <- mlt(ctm_BHi, data = BostonHousing2)
 logLik(mlt_BHi)
-AIC(mlt_BHi)
 
 ## ----BostonHousing-dr, cache = TRUE--------------------------------------
 ctm_BHi2 <- ctm(B_m, interacting = b_BH_s, sumconstr = FALSE)
 mlt_BHi2 <- mlt(ctm_BHi2, data = BostonHousing2)
 logLik(mlt_BHi2)
-AIC(mlt_BHi2)
 
-## ----Boston-Housing-dr-plot, echo = FALSE--------------------------------
+## ----Boston-Housing-dr-plot, echo = FALSE, fig.height = 3----------------
 q <- mkgrid(var_m, 100)[[1]]
 tr <- predict(mlt_BH, newdata = BostonHousing2[, all.vars(fm_BH[-2L])],
               q = q, type = "density")
@@ -660,8 +659,10 @@ with(subset(nd, ocounts == "3"), lines(coverstorey, ppois(3, lambda), lty = 4))
 with(subset(nd, ocounts == "4"), lines(coverstorey, ppois(4, lambda), lty = 5))
 abline(h = 1, lty = 6)
 
+## ----CHFLS-2-cmpr-estfun-------------------------------------------------
+summary(estfun(polr_CHFLS_2) - (-estfun(mlt_CHFLS_2)[,c(4, 5, 1:3)]))
+
 ## ----CHFLS-2-cmpr-2------------------------------------------------------
-max(abs(estfun(polr_CHFLS_2) - (-estfun(mlt_CHFLS_2)[,c(4, 5, 1:3)])))
 cbind(polr = sqrt(diag(vcov(polr_CHFLS_2))),
       mlt = sqrt(diag(vcov(mlt_CHFLS_2)))[c(4, 5, 1:3)])
 cftest(polr_CHFLS_2)
@@ -693,17 +694,15 @@ q <- cb_w[, "q"]
 lwr <- cb_w[, "lwr"]
 upr <-  cb_w[, "upr"]
 polygon(c(q, rev(q)), c(lwr, rev(upr)),
-        border = NA, col = rgb(.1, .1, .1, .1))
+        border = NA, col = "lightblue") ### rgb(.1, .1, .1, .1))
 
-#lines(cb_w[, "q"], cb_w[, "lwr"])
-#lines(cb_w[, "q"], cb_w[, "upr"])
+lines(cb_w[, "q"], cb_w[, "Estimate"])
 rug(geyser$waiting, col = rgb(.1, .1, .1, .1))
-plot(ecdf(geyser$waiting), col = "grey", xlab = "Waiting times", ylab = "Distribution", 
-     main = "", cex = .5)
-lines(cb_w[, "q"], pnorm(cb_w[, "Estimate"]))
-
+plot(cb_w[, "q"], pnorm(cb_w[, "Estimate"]), xlab = "Waiting times", ylab = "Distribution", 
+     main = "", cex = .5, type = "n")
 polygon(c(q, rev(q)), c(pnorm(lwr), rev(pnorm(upr))),                                     
-        border = NA, col = rgb(.1, .1, .1, .1))
+        border = NA, col = "lightblue") ### rgb(.1, .1, .1, .1))
+lines(cb_w[, "q"], pnorm(cb_w[, "Estimate"]))
 
 # lines(cb_w[, "q"], pnorm(cb_w[, "lwr"]))
 # lines(cb_w[, "q"], pnorm(cb_w[, "upr"]))
@@ -734,7 +733,7 @@ tpdens <- pdens[i]
 layout(matrix(1:2, ncol = 2))
 plot(q, tpdist[[1]], type = "n", xlab = "Waiting times", ylab = "Distribution")
 polygon(c(q, rev(q)), c(pnorm(lwr), rev(pnorm(upr))),
-        border = NA, col = "greenyellow")
+        border = NA, col = "lightblue")
 tmp <- sapply(tpdist, function(x) lines(q, x, col = rgb(.1, .1, .1, .1)))
 plot(q, tpdens[[1]], type = "n", ylim = range(unlist(pdens)),
      xlab = "Waiting times", ylab = "Density")
@@ -820,7 +819,6 @@ check(vars, data = nd)
 ## ----basefun-polynom-----------------------------------------------------
 xvar <- numeric_var("x", support = c(0.1, pi), bounds= c(0, Inf))
 x <- as.data.frame(mkgrid(xvar, n = 20))
-### set-up basis of order 3 ommiting the quadratic term
 class(pb <- polynomial_basis(xvar, coef = c(TRUE, TRUE, FALSE, TRUE)))
 
 ## ----basefun-polynom-fun-------------------------------------------------
@@ -830,13 +828,12 @@ head(pb(x))
 head(model.matrix(pb, data = x))
 
 ## ----basefun-polynom-pred------------------------------------------------
-### evaluate polynomial defined by basis and coefficients
 predict(pb, newdata = x, coef = c(1, 2, 0, 1.75))
-### evaluate 1st derivative
+
+## ----basefun-polynom-pred-deriv------------------------------------------
 predict(pb, newdata = x, coef = c(1, 2, 0, 1.75), deriv = c(x = 1L))
 
 ## ----basefun-log---------------------------------------------------------
-### set-up log-basis with intercept for positive variable
 class(lb <- log_basis(xvar, ui = "increasing"))
 head(X <- model.matrix(lb, data = x))
 
