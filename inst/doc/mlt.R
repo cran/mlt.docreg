@@ -41,6 +41,18 @@ knitr::set_header(highlight = '')  # do not \usepackage{Sweave}
 options(prompt = "R> ", continue = "+  ", useFancyQuotes = FALSE)  # JSS style
 options(width = 75)
 
+RC <- function(...) {
+    ret <- do.call("cbind", list(...))
+    mlt <- which(colnames(ret) == "mlt")
+    for (i in (1:ncol(ret))[-mlt]) {
+        nm <- colnames(ret)[i]
+        ret <- cbind(ret, (ret[,i] - ret[,mlt]) / ret[,mlt])
+        colnames(ret)[ncol(ret)] <- paste("(", nm, " - mlt)/mlt", sep = "")
+    }
+    print(ret, digits = 5)
+    return(invisible(ret))
+}
+
 ## ----citation, echo = FALSE----------------------------------------------
 year <- substr(packageDescription("mlt.docreg")$Date, 1, 4)
 version <- packageDescription("mlt.docreg")$Version
@@ -96,13 +108,13 @@ mlt_CHFLS_1 <- mlt(model = ctm_CHFLS_1, data = CHFLS)
 ## ----CHFLS-1-cmpr--------------------------------------------------------
 logLik(polr_CHFLS_1)
 logLik(mlt_CHFLS_1)
-cbind(polr = polr_CHFLS_1$zeta, mlt = coef(mlt_CHFLS_1))
+RC(polr = polr_CHFLS_1$zeta, mlt = coef(mlt_CHFLS_1))
 
 ## ----CHFLS-1-pred--------------------------------------------------------
-cbind(polr = predict(polr_CHFLS_1, newdata = data.frame(1), type = "prob"),
-      mlt = c(predict(mlt_CHFLS_1, newdata = data.frame(1), 
-                      type = "density", q = mkgrid(b_happy)[[1]])),
-      direct = xtabs(~ R_happy, data = CHFLS) / nrow(CHFLS))
+RC(polr = predict(polr_CHFLS_1, newdata = data.frame(1), type = "prob"),
+   mlt = c(predict(mlt_CHFLS_1, newdata = data.frame(1), 
+                   type = "density", q = mkgrid(b_happy)[[1]])),
+   ML = xtabs(~ R_happy, data = CHFLS) / nrow(CHFLS))
 
 ## ----geyser-w------------------------------------------------------------
 var_w <- numeric_var("waiting", support = c(40.0, 100), add = c(-5, 15), 
@@ -171,8 +183,8 @@ mlt_CHFLS_2 <- mlt(ctm_CHFLS_2, data = CHFLS, scale = TRUE)
 ## ----CHFLS-2-cmpr--------------------------------------------------------
 logLik(polr_CHFLS_2)
 logLik(mlt_CHFLS_2)
-cbind(polr = c(polr_CHFLS_2$zeta, coef(polr_CHFLS_2)), 
-      mlt = coef(mlt_CHFLS_2))
+RC(polr = c(polr_CHFLS_2$zeta, coef(polr_CHFLS_2)), 
+   mlt = coef(mlt_CHFLS_2))
 
 ## ----GBSG2-1, echo = TRUE------------------------------------------------
 data("GBSG2", package = "TH.data")
@@ -196,7 +208,7 @@ mlt_GBSG2_1 <- mlt(ctm_GBSG2_1, data = GBSG2, scale = TRUE)
 ## ----GBSG2-1-coxph-------------------------------------------------------
 coxph_GBSG2_1 <- coxph(fm_GBSG2, data = GBSG2, ties = "breslow")
 cf <- coef(coxph_GBSG2_1)
-cbind(coxph = cf, mlt = coef(mlt_GBSG2_1)[names(cf)])
+RC(coxph = cf, mlt = coef(mlt_GBSG2_1)[names(cf)])
 
 ## ----GBSG2-coxph_mlt, echo = FALSE, results = "hide", cache = TRUE-------
 ndtmp <- as.data.frame(mkgrid(GBSG2y, 100))
@@ -250,8 +262,8 @@ fss_GBSG2_1 <- flexsurvspline(fm_GBSG2, data = GBSG2, scale = "hazard",
 logLik(fss_GBSG2_1)
 logLik(mlt_GBSG2_1)
 cf <- coef(coxph_GBSG2_1)
-cbind(coxph = cf, mlt = coef(mlt_GBSG2_1)[names(cf)],
-      fss = coef(fss_GBSG2_1)[names(cf)])
+RC(coxph = cf, mlt = coef(mlt_GBSG2_1)[names(cf)],
+   fss = coef(fss_GBSG2_1)[names(cf)])
 
 ## ----GBSG2-1-fss-plot, echo = FALSE--------------------------------------
 p1 <- summary(fss_GBSG2_1, newdata = GBSG2[1,], ci = FALSE)
@@ -278,9 +290,9 @@ phreg_GBSG2_2 <- phreg(fm_GBSG2, data = GBSG2, dist = "weibull",
 logLik(survreg_GBSG2_2)
 logLik(phreg_GBSG2_2)
 logLik(mlt_GBSG2_2)
-cbind(survreg = coef(survreg_GBSG2_2)[names(cf)], 
-      phreg = -coef(phreg_GBSG2_2)[names(cf)], 
-      mlt = coef(mlt_GBSG2_2)[names(cf)])
+RC(survreg = coef(survreg_GBSG2_2)[names(cf)], 
+   phreg = -coef(phreg_GBSG2_2)[names(cf)], 
+   mlt = coef(mlt_GBSG2_2)[names(cf)])
 
 ## ----GBSG2-3-------------------------------------------------------------
 mlt_GBSG2_3 <- mlt(ctm_GBSG2_2, data = GBSG2, scale = TRUE)
@@ -289,9 +301,9 @@ phreg_GBSG2_3 <- phreg(fm_GBSG2, data = GBSG2, dist = "weibull")
 logLik(survreg_GBSG2_3)
 logLik(phreg_GBSG2_3)
 logLik(mlt_GBSG2_3)
-cbind(survreg = coef(survreg_GBSG2_3)[names(cf)] / survreg_GBSG2_3$scale, 
-      phreg = - coef(phreg_GBSG2_3)[names(cf)], 
-      mlt = coef(mlt_GBSG2_3)[names(cf)])
+RC(survreg = coef(survreg_GBSG2_3)[names(cf)] / survreg_GBSG2_3$scale, 
+   phreg = - coef(phreg_GBSG2_3)[names(cf)], 
+   mlt = coef(mlt_GBSG2_3)[names(cf)])
 
 ## ----BostonHousing-lm----------------------------------------------------
 data("BostonHousing2", package = "mlbench")
@@ -371,8 +383,8 @@ mlt_PSID1976_1 <- mlt(ctm_PSID1976_1, data = PSID1976_0, scale = TRUE)
 logLik(tr_PSID1976)
 logLik(mlt_PSID1976_1)
 cf <- coef(mlt_PSID1976_1)
-cbind(truncreg = coef(tr_PSID1976),
-      mlt = c(-cf[-grep("hours", names(cf))], 1) / cf["hours"])
+RC(truncreg = coef(tr_PSID1976),
+   mlt = c(-cf[-grep("hours", names(cf))], 1) / cf["hours"])
 
 ## ----PSID1976-mlt-ctm----------------------------------------------------
 var_h <- numeric_var("hours", support = range(PSID1976_0$hours$exact),
@@ -427,7 +439,7 @@ mlt_GBSG2_5 <- mlt(ctm_GBSG2_5, data = GBSG2, scale = TRUE)
 coxph_GBSG2_5 <- coxph(Surv(time, cens) ~ age + strata(horTh), 
                        data = GBSG2)
 cf <- coef(coxph_GBSG2_5)
-cbind(coxph = cf, mlt = coef(mlt_GBSG2_5)[names(cf)])
+RC(coxph = cf, mlt = coef(mlt_GBSG2_5)[names(cf)])
 
 ## ----CHFLS-5, cache = TRUE-----------------------------------------------
 contrasts(CHFLS$R_health) <- "contr.treatment"
@@ -660,19 +672,24 @@ with(subset(nd, ocounts == "4"), lines(coverstorey, ppois(4, lambda), lty = 5))
 abline(h = 1, lty = 6)
 
 ## ----CHFLS-2-cmpr-estfun-------------------------------------------------
-summary(estfun(polr_CHFLS_2) - (-estfun(mlt_CHFLS_2)[,c(4, 5, 1:3)]))
+sc_polr <- estfun(polr_CHFLS_2)
+sc_mlt <- -estfun(mlt_CHFLS_2)[,c(4, 5, 1:3)]
+summary((sc_polr - sc_mlt) / 
+        pmax(sqrt(.Machine$double.eps), sc_mlt))
 
 ## ----CHFLS-2-cmpr-2------------------------------------------------------
-cbind(polr = sqrt(diag(vcov(polr_CHFLS_2))),
-      mlt = sqrt(diag(vcov(mlt_CHFLS_2)))[c(4, 5, 1:3)])
+RC(polr = sqrt(diag(vcov(polr_CHFLS_2))),
+   mlt = sqrt(diag(vcov(mlt_CHFLS_2)))[c(4, 5, 1:3)])
+
+## ----CHFLS-2-cmpr-3------------------------------------------------------
 cftest(polr_CHFLS_2)
 cftest(mlt_CHFLS_2, parm = names(coef(polr_CHFLS_2)))
 
 ## ----GBSG2-1-coxph-cmpr--------------------------------------------------
 cf <- coef(coxph_GBSG2_1)
-cbind(coxph = sqrt(diag(vcov(coxph_GBSG2_1))),
-      mlt = sqrt(diag(vcov(mlt_GBSG2_1)))[names(cf)],
-      fss = sqrt(diag(vcov(fss_GBSG2_1)))[names(cf)])
+RC(coxph = sqrt(diag(vcov(coxph_GBSG2_1))),
+   mlt = sqrt(diag(vcov(mlt_GBSG2_1)))[names(cf)],
+   fss = sqrt(diag(vcov(fss_GBSG2_1)))[names(cf)])
 
 ## ----GBSG2-1-coxph-cmpr-cftest-------------------------------------------
 cftest(coxph_GBSG2_1)
