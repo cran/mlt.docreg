@@ -1,12 +1,12 @@
-02c9a2ffbccbe519ee2b758374f035af *DESCRIPTION
+4101a9387970b5ab8cd1bb31ad89d7d5 *DESCRIPTION
 415aecc93039ecdb32d9b3ff3ae81c9a *NAMESPACE
 dfd98875adb1c7379afa8b6e400fc5d2 *R/checkGH.R
 4ddc029d84f6a664b03e4d87fb9e80da *build/vignette.rds
 1c9695dee7162d6e72883b552906e753 *cleanup
-27d9da455ac6a0f45c3c5a6935290e70 *inst/NEWS.Rd
-95e1ee21b377a12ebebb6444f6cbb4f4 *inst/doc/mlt.R
-06faddebf718305d98d2024625f262cf *inst/doc/mlt.Rnw
-b10a9d18efd84ecc301f1924e6969acc *inst/doc/mlt.pdf
+84dd0764354360239b56f1d39731583a *inst/NEWS.Rd
+b5c29cb91bea216d95298aa4c4173de7 *inst/doc/mlt.R
+0a3b7943a6f702edfc260d0cdd25d359 *inst/doc/mlt.Rnw
+f8735427638aa70b22e311412e4c1ed3 *inst/doc/mlt.pdf
 3fe6cabc8fc4a2c654e0b7d67fc4740d *man/checkGH.Rd
 fc651bd905b59d8697188bef2946d9e1 *tests/AFT-Ex.R
 e92e73cf906e19ec7690d55e8b8b2742 *tests/AFT-Ex.Rout.save
@@ -21,5 +21,5 @@ cb199ee42378db177f60213410fd6f90 *tests/faithful.R
 7e6428e9e11831bf21227a163bab80e9 *tests/udist-Ex.R
 855977d5d82261b3fc0b554a5c141deb *tests/udist-Ex.Rout.save
 af735f31674d6d5b255f1a956b2439f2 *vignettes/defs.tex
-06faddebf718305d98d2024625f262cf *vignettes/mlt.Rnw
-9add4f6112f5dee8e6b46ef5c7a66ccf *vignettes/mlt.bib
+0a3b7943a6f702edfc260d0cdd25d359 *vignettes/mlt.Rnw
+31e7966a1b553c39d67a919ced886589 *vignettes/mlt.bib

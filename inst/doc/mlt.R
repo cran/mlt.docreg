@@ -972,8 +972,6 @@ legend("topright", lty = 1:3, bty = "n",
 objs <- ls()
 mltobj <- objs[grep("^mlt_", objs)]
 sapply(mltobj, function(m) eval(parse(text = paste("coef(", m, ")"))))
-#library("mlt.docreg")
-#sapply(mltobj, function(m) eval(parse(text = paste("checkGH(", m, ")"))))
 
 ## ----sessionInfo, echo = FALSE, results = "hide"-------------------------
 sessionInfo()
