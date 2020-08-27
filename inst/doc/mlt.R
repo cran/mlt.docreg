@@ -1,9 +1,9 @@
 ## ----mlt-setup, echo = FALSE, results = "hide", message = FALSE, warning = FALSE----
 set.seed(290875)
 
-sapply(c("mlt", "survival", "eha", "prodlim", "truncreg", "lattice", "gridExtra",
+pkgs <- sapply(c("mlt", "survival", "eha", "prodlim", "truncreg", "lattice", "gridExtra",
          "MASS", "nnet", "HSAUR3", "sandwich", "flexsurv", "grid", "latticeExtra", 
-         "colorspace", "multcomp"), library, char = TRUE)
+         "colorspace", "multcomp"), require, char = TRUE)
 
 if (!file.exists("analysis/DVC.rda")) {
     download.file("https://zenodo.org/record/17179/files/DVC.tgz", "DVC.tgz")
@@ -56,6 +56,14 @@ RC <- function(...) {
 ## ----mlt-citation, echo = FALSE------------------------------------------
 year <- substr(packageDescription("mlt.docreg")$Date, 1, 4)
 version <- packageDescription("mlt.docreg")$Version
+
+## ----fail, results = "asis", echo = FALSE--------------------------------
+if (any(!pkgs)) {
+    cat(paste("Package(s)", paste(names(pkgs)[!pkgs], collapse = ", "), 
+        "not available, stop processing.",
+        "\\end{document}\n"))
+    knitr::knit_exit()
+}
 
 ## ----mlt-geyser-var, echo = TRUE-----------------------------------------
 library("mlt")
