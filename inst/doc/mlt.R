@@ -362,7 +362,7 @@ ctm_BH <- ctm(B_m, shift = fm_BH[-2L], data = BostonHousing2,
 mlt_BH <- mlt(ctm_BH, data = BostonHousing2, scale = TRUE)
 logLik(mlt_BH)
 
-## ----mlt-BostonHousing-plot, echo = FALSE, results = "hide"--------------
+## ----mlt-BostonHousing-plot, echo = FALSE, results = "hide", dev = "png"----
 q <- 3:52
 m <- predict(lm_BH, data = BostonHousing2)
 s <- summary(lm_BH)$sigma
@@ -586,7 +586,7 @@ B_age <- Bernstein_basis(var_lage, order = 3, ui = "none")
 ctm_head <- ctm(B_head, interacting = B_age)
 mlt_head <- mlt(ctm_head, data = db, scale = TRUE)
 
-## ----mlt-head-plot, echo = FALSE-----------------------------------------
+## ----mlt-head-plot, echo = FALSE, dev = "png"----------------------------
 pr <- expand.grid(s <- mkgrid(ctm_head, 100))
 pr$p <- c(predict(mlt_head, newdata = s, type = "distribution"))
 pr$lage <- pr$lage^3
@@ -602,10 +602,64 @@ print(contourplot(p ~ lage + head | cut, data = pr, panel = pfun, region = FALSE
             xlab = "Age (years)", ylab = "Head circumference (cm)",
             scales = list(x = list(relation = "free"))))
 
+## ----mlt-BHi-start, echo = FALSE-----------------------------------------
+start <- 
+c(`Bs1(medvc):(Intercept)` = -11.58786739767557, `Bs2(medvc):(Intercept)` = -6.7547950426875296, 
+`Bs3(medvc):(Intercept)` = -4.1366028640187587, `Bs4(medvc):(Intercept)` = 1.70242739486858, 
+`Bs5(medvc):(Intercept)` = 1.7024282405116158, `Bs6(medvc):(Intercept)` = 3.2595263987587746, 
+`Bs7(medvc):(Intercept)` = 3.9025772292254435, `Bs1(medvc):crim` = 3.0699495656298534, 
+`Bs2(medvc):crim` = 3.5955167824166181, `Bs3(medvc):crim` = 3.5955168278664127, 
+`Bs4(medvc):crim` = 3.5955168750613429, `Bs5(medvc):crim` = 3.5955168904234664, 
+`Bs6(medvc):crim` = 3.5955169392855586, `Bs7(medvc):crim` = 3.5955169730725052, 
+`Bs1(medvc):zn` = -2.1151709334952202, `Bs2(medvc):zn` = -1.330004690968422, 
+`Bs3(medvc):zn` = -1.3300045948503083, `Bs4(medvc):zn` = -1.3300033108698186, 
+`Bs5(medvc):zn` = -1.3300033078086677, `Bs6(medvc):zn` = -0.96191066610824716, 
+`Bs7(medvc):zn` = -0.96191065861104608, `Bs1(medvc):indus` = -0.35960908556525345, 
+`Bs2(medvc):indus` = -0.35960905985490077, `Bs3(medvc):indus` = -0.35960793525271667, 
+`Bs4(medvc):indus` = -0.35934309840163225, `Bs5(medvc):indus` = -0.35934309357921079, 
+`Bs6(medvc):indus` = -0.35934403265085169, `Bs7(medvc):indus` = -0.35934405322662893, 
+`Bs1(medvc):chas1` = -0.49786094816438858, `Bs2(medvc):chas1` = -0.49770555550324658, 
+`Bs3(medvc):chas1` = -0.49085193409644223, `Bs4(medvc):chas1` = -0.28057150654979646, 
+`Bs5(medvc):chas1` = -0.28057150745910958, `Bs6(medvc):chas1` = -0.28057159418145561, 
+`Bs7(medvc):chas1` = -0.28057159957855826, `Bs1(medvc):nox` = 2.5376938304919792, 
+`Bs2(medvc):nox` = 2.5376933697075534, `Bs3(medvc):nox` = 2.5375485200496413, 
+`Bs4(medvc):nox` = 2.5375484910378336, `Bs5(medvc):nox` = 2.5375484949797813, 
+`Bs6(medvc):nox` = 2.5375484970845217, `Bs7(medvc):nox` = 2.5375484892126163, 
+`Bs1(medvc):rm` = -0.14558898695685421, `Bs2(medvc):rm` = -2.2333101594194145, 
+`Bs3(medvc):rm` = -2.233310165514423, `Bs4(medvc):rm` = -6.913467986991809, 
+`Bs5(medvc):rm` = -6.9134680513321216, `Bs6(medvc):rm` = -6.9134681648477878, 
+`Bs7(medvc):rm` = -6.9134681532727758, `Bs1(medvc):age` = 1.7037598964290337, 
+`Bs2(medvc):age` = 1.7037612199992875, `Bs3(medvc):age` = 1.5898930022989017, 
+`Bs4(medvc):age` = 0.43102069612812693, `Bs5(medvc):age` = 0.43102067780471154, 
+`Bs6(medvc):age` = -0.037041330032449186, `Bs7(medvc):age` = -0.037041406627502181, 
+`Bs1(medvc):dis` = 2.9873219530242476, `Bs2(medvc):dis` = 4.4952372044989133, 
+`Bs3(medvc):dis` = 4.4952373035891808, `Bs4(medvc):dis` = 4.4952386569329841, 
+`Bs5(medvc):dis` = 4.4952391676337369, `Bs6(medvc):dis` = 4.4952392418127287, 
+`Bs7(medvc):dis` = 4.7809968102137574, `Bs1(medvc):rad` = -0.97566895623645966, 
+`Bs2(medvc):rad` = -0.97566909946874247, `Bs3(medvc):rad` = -3.4798480962672937, 
+`Bs4(medvc):rad` = -3.4798481822134661, `Bs5(medvc):rad` = -3.4798481789260292, 
+`Bs6(medvc):rad` = -4.3174402380431083, `Bs7(medvc):rad` = -4.3178484277713345, 
+`Bs1(medvc):tax` = 3.9727833395481338, `Bs2(medvc):tax` = 2.3660629545899958, 
+`Bs3(medvc):tax` = 2.3660628938371251, `Bs4(medvc):tax` = 2.3660629241250111, 
+`Bs5(medvc):tax` = 2.3660629251840981, `Bs6(medvc):tax` = 2.1146216707381735, 
+`Bs7(medvc):tax` = 1.4719791743622892, `Bs1(medvc):ptratio` = 2.2039034046410761, 
+`Bs2(medvc):ptratio` = 2.2039025612746528, `Bs3(medvc):ptratio` = 2.203902513614862, 
+`Bs4(medvc):ptratio` = 2.2039024990773788, `Bs5(medvc):ptratio` = 2.2039017916126986, 
+`Bs6(medvc):ptratio` = 2.2039017060852997, `Bs7(medvc):ptratio` = 2.2039016974876349, 
+`Bs1(medvc):b` = -0.50419574760654773, `Bs2(medvc):b` = -1.6428248797945801, 
+`Bs3(medvc):b` = -0.71378127312071882, `Bs4(medvc):b` = -0.71378122029094859, 
+`Bs5(medvc):b` = -0.71378126944149745, `Bs6(medvc):b` = -0.71378288163529846, 
+`Bs7(medvc):b` = -0.71378290708848713, `Bs1(medvc):lstat` = 5.3505499532175946, 
+`Bs2(medvc):lstat` = 5.7360315640224862, `Bs3(medvc):lstat` = 5.7360316296539118, 
+`Bs4(medvc):lstat` = 5.7360355991353975, `Bs5(medvc):lstat` = 6.6638242380198784, 
+`Bs6(medvc):lstat` = 7.0023018769629921, `Bs7(medvc):lstat` = 7.0023018815336835
+)
+
 ## ----mlt-BostonHousing-dr-sumconstr, cache = TRUE------------------------
 b_BH_s <- as.basis(fm_BH[-2L], data = BostonHousing2, scale = TRUE)
 ctm_BHi <- ctm(B_m, interacting = b_BH_s, sumconstr = TRUE)
-mlt_BHi <- mlt(ctm_BHi, data = BostonHousing2)
+mlt_BHi <- mlt(ctm_BHi, data = BostonHousing2, dofit = FALSE)
+coef(mlt_BHi) <- start
 logLik(mlt_BHi)
 
 ## ----mlt-BostonHousing-dr, cache = TRUE----------------------------------
@@ -613,7 +667,7 @@ ctm_BHi2 <- ctm(B_m, interacting = b_BH_s, sumconstr = FALSE)
 mlt_BHi2 <- mlt(ctm_BHi2, data = BostonHousing2)
 logLik(mlt_BHi2)
 
-## ----mlt-Boston-Housing-dr-plot, echo = FALSE, fig.height = 3------------
+## ----mlt-Boston-Housing-dr-plot, echo = FALSE, fig.height = 3, dev = "png"----
 q <- mkgrid(var_m, 100)[[1]]
 tr <- predict(mlt_BH, newdata = BostonHousing2[, all.vars(fm_BH[-2L])],
               q = q, type = "density")
