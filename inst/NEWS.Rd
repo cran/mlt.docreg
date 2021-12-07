@@ -3,6 +3,14 @@
 \title{NEWS file for the mlt.docreg package}
 
 
+\section{Changes in Version 1.1-1 (2021-12-07)}{
+  \itemize{
+    \item{Fix LaTeX problems.}
+    \item{Reduce precision in reported estimates, this makes M1mac happy again.}
+    \item{Update reference output for truncation examples.}
+  }
+}
+
 \section{Changes in Version 1.1-0 (2021-03-08)}{
   \itemize{
     \item{New regression test for nonparametric ML estimation
