@@ -1,12 +1,12 @@
-411a424610294d81d6d64d135db8905d *DESCRIPTION
+ed87eadaaf7f2ab9eda042df43c405ee *DESCRIPTION
 1050ad873c2cc9027f9cdc40431d8ee5 *NAMESPACE
 dfd98875adb1c7379afa8b6e400fc5d2 *R/checkGH.R
 2f3b692e2816ac0057ba46901a020647 *build/vignette.rds
 1c9695dee7162d6e72883b552906e753 *cleanup
-d4a53f0d43d68bf9a4e5c8f7c9f4c783 *inst/NEWS.Rd
+1e122eb5164fe1598dd2167d8f37d451 *inst/NEWS.Rd
 94a3635a28060e2cd53852b41d42c71b *inst/doc/mlt.R
 91b0b8a1018d0bf15176d908538345b1 *inst/doc/mlt.Rnw
-ee3eb346139a19d6f071e882b7f6769d *inst/doc/mlt.pdf
+add37815fbf9af8de7905840be0f99a1 *inst/doc/mlt.pdf
 3fe6cabc8fc4a2c654e0b7d67fc4740d *man/checkGH.Rd
 5e4fd95273bd4991581f22ecebd7a9e6 *tests/AFT-Ex.R
 567ef60d1689a6e4d561c3e2f9e15e3c *tests/AFT-Ex.Rout.save
@@ -17,7 +17,7 @@ c5bd28ee4e0781ef7633cac046639632 *tests/faithful.Rout.save
 10c4213e657bb5a46605cd7c5ed674b1 *tests/timedep_covar.R
 2964616b362514a3e9e8a2e9a660b2d9 *tests/timedep_covar.Rout.save
 99165ebd0a636d91e4afcf4f2c0a500f *tests/truncreg-Ex.R
-9451bc3e40091b4dcd2b8de8ccca6cc3 *tests/truncreg-Ex.Rout.save
+027287a95db4649d9c0863a387aea745 *tests/truncreg-Ex.Rout.save
 6c3cc570da6a63413457ae94120b660f *tests/udist-Ex.R
 4dd7b4d727c5817cc06574031be0a85b *tests/udist-Ex.Rout.save
 af735f31674d6d5b255f1a956b2439f2 *vignettes/defs.tex
