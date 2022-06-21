@@ -1,12 +1,12 @@
-9b2d73a293cebc79e2056058a9cc246b *DESCRIPTION
+8ede75a7d918c9a6e98330f878687fb7 *DESCRIPTION
 1050ad873c2cc9027f9cdc40431d8ee5 *NAMESPACE
 dfd98875adb1c7379afa8b6e400fc5d2 *R/checkGH.R
-f7f3f4589bef2bc3befc98350d54c796 *build/vignette.rds
+995eb548c94b4526441db518b8036a1c *build/vignette.rds
 1c9695dee7162d6e72883b552906e753 *cleanup
-ed53fb9a20500e079145bf14299e3f31 *inst/NEWS.Rd
+da7dd7aa91f77d11e4356dde96b46d63 *inst/NEWS.Rd
 94a3635a28060e2cd53852b41d42c71b *inst/doc/mlt.R
-1e0dcb55b83e196af6bc84226c991551 *inst/doc/mlt.Rnw
-f11aa2c3f2f4c5d1becb465ac8bc3412 *inst/doc/mlt.pdf
+cb05936670d5b04d1bef679a065b01fa *inst/doc/mlt.Rnw
+688bf0e79529e3c43997f66ee17d6aec *inst/doc/mlt.pdf
 3fe6cabc8fc4a2c654e0b7d67fc4740d *man/checkGH.Rd
 5e4fd95273bd4991581f22ecebd7a9e6 *tests/AFT-Ex.R
 567ef60d1689a6e4d561c3e2f9e15e3c *tests/AFT-Ex.Rout.save
@@ -24,5 +24,5 @@ afc909433eeeb8acdcf9cf18ee46057e *tests/timedep_covar.Rout.save
 6c3cc570da6a63413457ae94120b660f *tests/udist-Ex.R
 4dd7b4d727c5817cc06574031be0a85b *tests/udist-Ex.Rout.save
 af735f31674d6d5b255f1a956b2439f2 *vignettes/defs.tex
-1e0dcb55b83e196af6bc84226c991551 *vignettes/mlt.Rnw
-61200aab2790179dee639df38a2279eb *vignettes/mlt.bib
+cb05936670d5b04d1bef679a065b01fa *vignettes/mlt.Rnw
+5b3ce6e64f13099ed7aaa6a0e7ab1b0d *vignettes/mlt.bib
