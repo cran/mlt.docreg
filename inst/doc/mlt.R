@@ -1,7 +1,7 @@
 ## ----mlt-setup, echo = FALSE, results = "hide", message = FALSE, warning = FALSE----
 set.seed(290875)
 
-pkgs <- sapply(c("mlt", "survival", "eha", "prodlim", "truncreg", "lattice", "gridExtra",
+pkgs <- sapply(c("mgcv", "mlt", "survival", "eha", "prodlim", "truncreg", "lattice", "gridExtra",
          "MASS", "nnet", "HSAUR3", "sandwich", "flexsurv", "grid", "latticeExtra", 
          "colorspace", "multcomp", "eha"), require, char = TRUE)
 
