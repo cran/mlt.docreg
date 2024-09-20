@@ -1,7 +1,7 @@
 Package: mlt.docreg
 Title: Most Likely Transformations: Documentation and Regression Tests
-Version: 1.1-8
-Date: 2024-04-29
+Version: 1.1-9
+Date: 2024-09-19
 Authors@R: person("Torsten", "Hothorn", role = c("aut", "cre"),
                   email = "Torsten.Hothorn@R-project.org", comment = c(ORCID = "0000-0001-8301-0471"))  
 Description: Additional documentation, a package vignette and 
@@ -16,8 +16,8 @@ VignetteBuilder: knitr
 URL: http://ctm.R-forge.R-project.org
 License: GPL-2
 NeedsCompilation: no
-Packaged: 2024-04-29 12:56:08 UTC; hothorn
+Packaged: 2024-09-20 10:55:05 UTC; hothorn
 Author: Torsten Hothorn [aut, cre] (<https://orcid.org/0000-0001-8301-0471>)
 Maintainer: Torsten Hothorn <Torsten.Hothorn@R-project.org>
 Repository: CRAN
-Date/Publication: 2024-04-29 13:40:02 UTC
+Date/Publication: 2024-09-20 11:50:14 UTC
