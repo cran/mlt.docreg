@@ -220,7 +220,7 @@ ctm_GBSG2_1 <- ctm(B_GBSG2y, shifting = fm_GBSG2[-2L], data = GBSG2,
                    todistr = "MinExtrVal")
 
 ## ----mlt-GBSG2-1-xbasis, eval = FALSE------------------------------------
-#  as.basis(fm_GBSG2[-2L], data = GBSG2, remove_intercept = TRUE)
+# as.basis(fm_GBSG2[-2L], data = GBSG2, remove_intercept = TRUE)
 
 ## ----mlt-GBSG2-1-mlt-----------------------------------------------------
 mlt_GBSG2_1 <- mlt(ctm_GBSG2_1, data = GBSG2, scale = TRUE)
