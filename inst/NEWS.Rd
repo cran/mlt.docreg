@@ -3,9 +3,15 @@
 \title{NEWS file for the mlt.docreg package}
 
 
+\section{Changes in Version 1.1-11 (2025-10-08)}{
+  \itemize{
+    \item{Prepare for \pkg{mlt} 1.7-0.}
+  }
+}
+
 \section{Changes in Version 1.1-10 (2024-11-19)}{
   \itemize{
-    \item{Use logLik() method in tests, not the internal slots.}
+    \item{Recompile vignette.}
   }
 }
 
