@@ -1,6 +1,6 @@
 
-R version 4.5.1 (2025-06-13) -- "Great Square Root"
-Copyright (C) 2025 The R Foundation for Statistical Computing
+R version 4.6.0 (2026-04-24) -- "Because it was There"
+Copyright (C) 2026 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -191,12 +191,10 @@ Error in phreg(y ~ g, data = mydata, dist = "weibull", shape = 1) :
 > mydata <- data.frame(y = Surv(y, y + 1, sample(0:3, length(y), replace = TRUE),
 +                      type = "interval"), g = g)
 > 
-> coef(opt<- mlt(m, data = mydata, fixed = c("log(y)" = 1)))
-     log(y) (Intercept)          g2          g3 
-     1.0000     -0.3657      0.6942      1.1192 
-> coef(aft <- survreg(y ~ g, data = mydata, dist = "expo"))
-(Intercept)          g2          g3 
-     0.3657     -0.6942     -1.1192 
+> cfm <- coef(opt<- mlt(m, data = mydata, fixed = c("log(y)" = 1)))
+> cfs <- coef(aft <- survreg(y ~ g, data = mydata, dist = "expo"))
+> all.equal(cfm[-1L], -cfs, check.attributes = FALSE, tol = 1e-4)
+[1] TRUE
 > 
 > ## Compare standard errors
 > ## MLT
@@ -395,4 +393,4 @@ log(shape)
 > 
 > proc.time()
    user  system elapsed 
-  1.617   0.129   1.737 
+  0.848   0.083   0.916 

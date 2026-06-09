@@ -8,7 +8,7 @@
 %% packages
 \usepackage{thumbpdf}
 \usepackage{amsfonts,amstext,amsmath,amssymb,amsthm}
-\usepackage{accents}
+\usepackage{accents} %% for \bar \ubar
 %\usepackage{color}
 \usepackage{rotating}
 \usepackage{verbatim}

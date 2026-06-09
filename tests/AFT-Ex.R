@@ -115,8 +115,9 @@ try(coef(phreg <- phreg(y ~ g, data = mydata, dist = "weibull", shape = 1)))
 mydata <- data.frame(y = Surv(y, y + 1, sample(0:3, length(y), replace = TRUE),
                      type = "interval"), g = g)
 
-coef(opt<- mlt(m, data = mydata, fixed = c("log(y)" = 1)))
-coef(aft <- survreg(y ~ g, data = mydata, dist = "expo"))
+cfm <- coef(opt<- mlt(m, data = mydata, fixed = c("log(y)" = 1)))
+cfs <- coef(aft <- survreg(y ~ g, data = mydata, dist = "expo"))
+all.equal(cfm[-1L], -cfs, check.attributes = FALSE, tol = 1e-4)
 
 ## Compare standard errors
 ## MLT
