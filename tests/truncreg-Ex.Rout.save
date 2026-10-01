@@ -1,6 +1,6 @@
 
-R version 4.5.1 (2025-06-13) -- "Great Square Root"
-Copyright (C) 2025 The R Foundation for Statistical Computing
+R version 4.6.1 (2026-06-24) -- "Happy Hop"
+Copyright (C) 2026 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -20,6 +20,7 @@ Type 'q()' to quit R.
 Loading required package: basefun
 Loading required package: variables
 > library("mlt.docreg")
+> ## IGNORE_RDIFF_BEGIN
 > library("truncreg")
 Loading required package: maxLik
 Loading required package: miscTools
@@ -29,6 +30,7 @@ Henningsen, Arne and Toomet, Ott (2011). maxLik: A package for maximum likelihoo
 
 If you have questions, suggestions, or comments regarding the 'maxLik' package, please use a forum or 'tracker' at maxLik's R-Forge site:
 https://r-forge.r-project.org/projects/maxlik/
+> ## IGNORE_RDIFF_END
 > ### make M1mac happy
 > options(digits = 4)
 > 
@@ -133,4 +135,4 @@ x              0.017333 -0.018485  0.03730
 > 
 > proc.time()
    user  system elapsed 
-  2.914   0.141   3.047 
+  2.509   0.101   1.411 

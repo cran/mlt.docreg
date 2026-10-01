@@ -3,6 +3,12 @@
 \title{NEWS file for the mlt.docreg package}
 
 
+\section{Changes in Version 1.1-14 (2026-10-01)}{
+  \itemize{
+    \item{Silence startup messages from external packages.}
+  }
+}
+
 \section{Changes in Version 1.1-13 (2026-06-09)}{
   \itemize{
     \item{Update reference output.}

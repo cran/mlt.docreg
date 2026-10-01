@@ -62,7 +62,7 @@ RC <- function(...) {
 }
 
 ## ----mlt-citation, echo = FALSE------------------------------------------
-year <- substr(packageDescription("mlt.docreg")$Date, 1, 4)
+year <- format(dt <- as.Date(packageDescription("mlt.docreg")$Packaged), "%Y")
 version <- packageDescription("mlt.docreg")$Version
 
 ## ----fail, results = "asis", echo = FALSE--------------------------------

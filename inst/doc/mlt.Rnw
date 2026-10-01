@@ -148,7 +148,7 @@ truncation}
 \begin{document}
 
 <<mlt-citation, echo = FALSE>>=
-year <- substr(packageDescription("mlt.docreg")$Date, 1, 4)
+year <- format(dt <- as.Date(packageDescription("mlt.docreg")$Packaged), "%Y")
 version <- packageDescription("mlt.docreg")$Version
 @
 \footnote{Please cite this document as: Torsten Hothorn (2020)

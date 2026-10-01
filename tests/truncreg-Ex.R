@@ -1,7 +1,9 @@
 
 library("mlt")
 library("mlt.docreg")
+## IGNORE_RDIFF_BEGIN
 library("truncreg")
+## IGNORE_RDIFF_END
 ### make M1mac happy
 options(digits = 4)
 
