@@ -1,6 +1,6 @@
 
-R version 4.5.1 (2025-06-13) -- "Great Square Root"
-Copyright (C) 2025 The R Foundation for Statistical Computing
+R Under development (unstable) (2026-10-19 r90708) -- "Unsuffered Consequences"
+Copyright (C) 2026 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -131,4 +131,4 @@ Bs9(waiting)      -0.7427       0.8292      -0.9214       1.0000
 > 
 > proc.time()
    user  system elapsed 
-  3.308   0.151   3.465 
+  2.625   0.089   1.625 

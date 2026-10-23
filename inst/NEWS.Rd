@@ -3,11 +3,19 @@
 \title{NEWS file for the mlt.docreg package}
 
 
+\section{Changes in Version 1.1-15 (2026-10-23)}{
+  \itemize{
+    \item{Robustify checks against \pkg{rms}.}
+  }
+}
+
+
 \section{Changes in Version 1.1-14 (2026-10-01)}{
   \itemize{
     \item{Silence startup messages from external packages.}
   }
 }
+
 
 \section{Changes in Version 1.1-13 (2026-06-09)}{
   \itemize{
